@@ -135,6 +135,20 @@ def readFile(fileName,head,data,classes):
 	finally:
 		f.close()
 
+def formatData(fileName,head):
+	data = []
+	classes = []
+	readFile(fileName,head,data,classes)
+
+	# Convert class names to a number
+	classes = map(lambda x: list(set(classes)).index(x), classes)
+
+	# Final preperations for attributes and classes
+	x = np.matrix(data)
+	y = fixLabels(classes)
+	return (x,y)
+
+
 def main():
 	# Check command-line arguments
 	if len(sys.argv) < 2:
@@ -146,30 +160,11 @@ def main():
 	if "--head" in sys.argv:
 		head = True
 
-	data = []
-	classes = []
-	readFile(sys.argv[1],head,data,classes)
-
-	# Convert class names to a number
-	classes = map(lambda x: list(set(classes)).index(x), classes)
-
-	# Final preperations for attributes and classes
-	xTrain = np.matrix(data)
-	yTrain = fixLabels(classes)
+	(xTrain,yTrain) = formatData(sys.argv[1],head)
 	size = xTrain.shape[0]
 	splitAfterTrainingSet = xTrain.shape[0]
 
-
-	data = []
-	classes = []
-	readFile(sys.argv[2],head,data,classes)
-
-	# Convert class names to a number
-	classes = map(lambda x: list(set(classes)).index(x), classes)
-
-	# Final preperations for attributes and classes
-	xTest = np.matrix(data)
-	yTest = fixLabels(classes)
+	(xTest,yTest) = formatData(sys.argv[2], head)
 	size += xTest.shape[0]
 	size -= 1 #substract 1 as the array starts from zero
 
