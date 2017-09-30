@@ -91,8 +91,6 @@ def test(a,b, split):
 
 	# Build weight vector from training data
 	W = train(a[:split],b[:split])
-	print 'W'
-	print W
 	# Build test sets
 	x = a[split:]
 	y = b[split:]
@@ -105,27 +103,19 @@ def test(a,b, split):
 		prediction = predict(W,x[i])
 		actual = list(y[i].A1)
 		if prediction == actual:
+			print 'Prediction success: Predicted : {} Actual: {}'.format(prediction, actual)
 			hits += 1
-	accuracy = hits/float(total)*100
-	print "Accuracy = " + str(accuracy) + "%", "(" + str(hits) + "/" + str(total) + ")"
+		else:
+			print 'Prediction failed: Predicted : {} Actual: {}'.format(prediction, actual)
+		accuracy = hits/float(total)*100
+	#print "Accuracy = " + str(accuracy) + "%", "(" + str(hits) + "/" + str(total) + ")"
 
 def usage():
 	return 'usage: %s <data file> [head/tail]\n' % os.path.basename( sys.argv[ 0 ] )
+	#return 'usage: %s <data file> [head/tail]\n' % os.path.basename( sys.argv[ 0 ] )
 
-def main():
-	# Check command-line arguments
-	if len(sys.argv) < 2:
-		print usage()
-		sys.exit(1)
-	# The head flag means the class is at the beginning of each line in the data file
-	# Default is at the end of each line
-	head = False
-	if "--head" in sys.argv:
-		head = True
-
-	data = []
-	classes = []
-	f = open(sys.argv[1]) # open data file
+def readFile(fileName,head,data,classes):
+	f = open(fileName) # open data file
 	try:
 		# parse file
 		for line in f:
@@ -145,55 +135,52 @@ def main():
 	finally:
 		f.close()
 
+def main():
+	# Check command-line arguments
+	if len(sys.argv) < 2:
+		print usage()
+		sys.exit(1)
+	# The head flag means the class is at the beginning of each line in the data file
+	# Default is at the end of each line
+	head = False
+	if "--head" in sys.argv:
+		head = True
+
+	data = []
+	classes = []
+	readFile(sys.argv[1],head,data,classes)
+
 	# Convert class names to a number
 	classes = map(lambda x: list(set(classes)).index(x), classes)
 
 	# Final preperations for attributes and classes
-	x = np.matrix(data)
-	y = fixLabels(classes)
+	xTrain = np.matrix(data)
+	yTrain = fixLabels(classes)
+	size = xTrain.shape[0]
+	splitAfterTrainingSet = xTrain.shape[0]
 
-	# shuffle data for better accuracy
-	z = [] # temp array
-	size = x.shape[0] - 1
 
-	for i in range(size):
-		z.append((x[i],y[i]))
-	shuffle(z)
+	data = []
+	classes = []
+	readFile(sys.argv[2],head,data,classes)
 
-	for i in range(size):
-		x[i] = z[i][0]
-		y[i] = z[i][1]
+	# Convert class names to a number
+	classes = map(lambda x: list(set(classes)).index(x), classes)
+
+	# Final preperations for attributes and classes
+	xTest = np.matrix(data)
+	yTest = fixLabels(classes)
+	size += xTest.shape[0]
+	size -= 1 #substract 1 as the array starts from zero
+
+	x = np.concatenate((xTrain,xTest))
+	y = np.concatenate((yTrain,yTest))
 
 	# scale data so it fits in range (0,1)
 	for i in range(size):
 		x[i] = x[i] / x.max()
 
-	# train and test data
-	print "100% Train/0% Test"
-	split = int(size * 0.5)
-	test(x,y,split)
-	print "\n"
-
-'''
-	print "40% Train/60% Test"
-	split = int(size * 0.4)
-	test(x,y,split)
-	print "\n"
-
-	print "30% Train/70% Test"
-	split = int(size * 0.3)
-	test(x,y,split)
-	print "\n"
-
-	print "20% Train/80% Test"
-	split = int(size * 0.2)
-	test(x,y,split)
-	print "\n"
-
-	print "10% Train/90% Test"
-	split = int(size * 0.1)
-	test(x,y,split)
-'''
+	test(x,y,splitAfterTrainingSet)
 
 # Python doesnt call main() by default
 if __name__ == "__main__":
