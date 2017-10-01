@@ -27,6 +27,10 @@ def train(x,y):
 		sum2 += np.outer(x_i, y_i)		# find xi*yi'
 		i += 1
 
+	ridgeLambda = 0.01 * np.eye(D)
+	tr = np.dot(ridgeLambda.T, ridgeLambda)
+	sum1 = sum1 + tr
+
 	# Return weight vector
 	# Weight vector multiplies sums and inverse of sum1
 	return np.dot(inv(sum1),sum2)
