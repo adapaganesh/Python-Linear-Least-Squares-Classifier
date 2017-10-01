@@ -19,18 +19,18 @@ def train(x,y):
 	# Build the sums of xi*xi' and xi*yi'
 	sum1 = np.zeros((D,D)) # init placeholder
 	sum2 = np.zeros((D,K))
-	norm1 = []
+	norm2 = []
 	i = 0
 	for x_i in x:						# loop over all vectors
 		x_i = np.append(1, x_i) 		# augment vector with a 1
 		y_i = y[i]
 		sum1 += np.outer(x_i, x_i)		# find xi*xi'
-		norm1.append(x_i)
+		norm2.append(x_i)
 		sum2 += np.outer(x_i, y_i)		# find xi*yi'
 		i += 1
 
-	norm1 = norm(norm1,1)
-	ridgeLambda = np.dot(0.0000001 * norm1 * np.eye(D), sum1)
+	norm2 = norm(norm2)
+	ridgeLambda = np.dot(0.0001 * norm2 * np.eye(D), sum1)
 	tr = np.dot(ridgeLambda.T, ridgeLambda)
 	sum1 = np.add(sum1 , tr)
 
