@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from numpy.linalg import inv, solve, matrix_rank,norm
+from numpy.linalg import inv, solve, matrix_rank
 import numpy as np
 import sys, os
 from random import shuffle, randint
@@ -19,24 +19,18 @@ def train(x,y):
 	# Build the sums of xi*xi' and xi*yi'
 	sum1 = np.zeros((D,D)) # init placeholder
 	sum2 = np.zeros((D,K))
-	norm2 = []
 	i = 0
 	for x_i in x:						# loop over all vectors
 		x_i = np.append(1, x_i) 		# augment vector with a 1
 		y_i = y[i]
 		sum1 += np.outer(x_i, x_i)		# find xi*xi'
-		norm2.append(x_i)
 		sum2 += np.outer(x_i, y_i)		# find xi*yi'
 		i += 1
-
-	norm2 = norm(norm2)
-	ridgeLambda = np.dot(0.0001 * norm2 * np.eye(D), sum1)
-	tr = np.dot(ridgeLambda.T, ridgeLambda)
-	sum1 = np.add(sum1 , tr)
 
 	# Return weight vector
 	# Weight vector multiplies sums and inverse of sum1
 	return np.dot(inv(sum1),sum2)
+
 
 def predict(W, x):
 	"""
