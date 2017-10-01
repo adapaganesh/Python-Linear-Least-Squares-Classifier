@@ -6,7 +6,7 @@
 
 ### Usage
 
-`./q4_<x>.py <trainSet.csv> <testSet.csv>
+`./<fileName.py <trainSet.csv> <testSet.csv>
 
 `data_file`
 is a file containing data attributes and classes on each line,
