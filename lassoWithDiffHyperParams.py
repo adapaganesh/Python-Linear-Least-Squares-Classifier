@@ -5,11 +5,12 @@ from sklearn.linear_model import Lasso
 import sys, os
 from random import shuffle, randint
 
-def lasso(xTrain, yTrain):
+def lasso(xTrain, yTrain,alpha):
 	testMatrix = np.zeros((xTrain.shape[0],xTrain.shape[1]+1))
 	for i,x in enumerate(xTrain):
 		testMatrix[i] = np.append(1,x)
-	regression = Lasso(alpha=0.00111111, normalize=True)
+	#regression = Lasso(alpha=0.00111111, normalize=True)
+	regression = Lasso(alpha=alpha, normalize=True)
 	return regression.fit(testMatrix,yTrain).coef_
 
 def predict(W, x):
@@ -52,7 +53,7 @@ def fixLabels(y):
 		newY.append(temp)	# add to matrix
 	return np.matrix(newY)
 
-def test(a,b, split):
+def test(a,b, split,alpha):
 	"""
 	Runs the linear least squares classifier
 	:param a:	All the data
@@ -63,7 +64,7 @@ def test(a,b, split):
 
 	# Build weight vector from training data
 	#W = train(a[:split],b[:split])
-	W = lasso(a[:split],b[:split])
+	W = lasso(a[:split],b[:split],alpha)
 	# Build test sets
 	x = a[split:]
 	y = b[split:]
@@ -76,12 +77,12 @@ def test(a,b, split):
 		prediction = predict(W,x[i])
 		actual = list(y[i].A1)
 		if prediction == actual:
-			print 'Prediction success: Predicted : {} Actual: {}'.format(prediction, actual)
+			#print 'Prediction success: Predicted : {} Actual: {}'.format(prediction, actual)
 			hits += 1
-		else:
-			print 'Prediction failed: Predicted : {} Actual: {}'.format(prediction, actual)
+		#else:
+			#print 'Prediction failed: Predicted : {} Actual: {}'.format(prediction, actual)
 		accuracy = hits/float(total)*100
-	#print "Accuracy = " + str(accuracy) + "%", "(" + str(hits) + "/" + str(total) + ")"
+	print "Accuracy = " + str(accuracy) + "%", "(" + str(hits) + "/" + str(total) + ")" + " while alpha = " + str(alpha)
 
 def usage():
 	return 'usage: %s <data file> \n' % os.path.basename( sys.argv[ 0 ] )
@@ -146,7 +147,9 @@ def main():
 	for i in range(size):
 		x[i] = x[i] / x.max()
 
-	test(x,y,splitAfterTrainingSet)
+	alphaLasso = [1e-15, 1e-10, 1e-8, 1e-5,1e-4, 1e-3,1e-2, 1, 5, 10]
+	for alpha in alphaLasso:
+		test(x,y,splitAfterTrainingSet,alpha)
 
 # Python doesnt call main() by default
 if __name__ == "__main__":
